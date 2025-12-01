@@ -28,7 +28,8 @@ func main() {
 	defer file.Close()
 
 	pos := startValue
-	zeroCount := 0
+	partOne := 0
+	partTwo := 0
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -44,6 +45,8 @@ func main() {
 			os.Exit(1)
 		}
 
+		partTwo += zeroHitsDuring(pos, distance, dir)
+
 		move := distance % dialSize
 		switch dir {
 		case 'L':
@@ -56,7 +59,7 @@ func main() {
 		}
 
 		if pos == 0 {
-			zeroCount++
+			partOne++
 		}
 	}
 
@@ -65,5 +68,31 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(zeroCount)
+	fmt.Printf("Part 1: %d\n", partOne)
+	fmt.Printf("Part 2: %d\n", partTwo)
+}
+
+// zeroHitsDuring counts how many clicks in a single rotation land on 0.
+func zeroHitsDuring(pos, distance int, dir byte) int {
+	if distance <= 0 {
+		return 0
+	}
+
+	var stepsToZero int
+	switch dir {
+	case 'R':
+		stepsToZero = (dialSize - pos) % dialSize
+	case 'L':
+		stepsToZero = pos % dialSize
+	default:
+		return 0
+	}
+
+	if stepsToZero == 0 {
+		stepsToZero = dialSize
+	}
+	if distance < stepsToZero {
+		return 0
+	}
+	return 1 + (distance-stepsToZero)/dialSize
 }
