@@ -23,6 +23,8 @@ jobs:
 
     - name: Build
       run: go build -v ./...
+      working-directory: ./01_secret_entrance
 
     - name: Test
       run: go test -v ./...
+      working-directory: ./01_secret_entrance
