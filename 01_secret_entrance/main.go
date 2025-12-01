@@ -15,6 +15,7 @@ const (
 )
 
 func main() {
+	// Allow overriding the default input to make testing easier.
 	inputPath := defaultInput
 	if len(os.Args) > 1 {
 		inputPath = os.Args[1]
@@ -27,6 +28,7 @@ func main() {
 	}
 	defer file.Close()
 
+	// Track the current dial position and both answers as we simulate.
 	pos := startValue
 	partOne := 0
 	partTwo := 0
@@ -38,6 +40,7 @@ func main() {
 			continue
 		}
 
+		// Each line is of the form L123 or R42.
 		dir := line[0]
 		distance, err := strconv.Atoi(strings.TrimSpace(line[1:]))
 		if err != nil {
@@ -45,8 +48,10 @@ func main() {
 			os.Exit(1)
 		}
 
+		// Count zero hits that occur during the rotation before the dial stops.
 		partTwo += zeroHitsDuring(pos, distance, dir)
 
+		// Update the dial position for the next instruction.
 		move := distance % dialSize
 		switch dir {
 		case 'L':
@@ -81,8 +86,10 @@ func zeroHitsDuring(pos, distance int, dir byte) int {
 	var stepsToZero int
 	switch dir {
 	case 'R':
+		// distance needed to wrap upward to 0 (modulo the dial size).
 		stepsToZero = (dialSize - pos) % dialSize
 	case 'L':
+		// distance needed to wrap downward to 0.
 		stepsToZero = pos % dialSize
 	default:
 		return 0
