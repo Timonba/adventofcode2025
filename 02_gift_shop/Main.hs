@@ -36,16 +36,13 @@ main = do
 ------------------------------------------------------------
 
 parseRanges :: String -> [Range]
-parseRanges s =
-  [ let (a, bWithDash) = break (== '-') tok
-        b              = drop 1 bWithDash
-    in (read a, read b)
-  | tok <- splitOn ',' cleaned
-  , not (null tok)
-  ]
+parseRanges =
+  map parseRange . filter (not . null) . splitOn ',' . filter (not . isSpace)
   where
-    -- Remove all whitespace (newlines, spaces, etc.) just in case
-    cleaned = filter (not . isSpace) s
+    parseRange tok =
+      case span (/= '-') tok of
+        (lo, '-':hi) -> (read lo, read hi)
+        _            -> error ("Malformed range: " ++ tok)
 
 -- Simple split on a single character
 splitOn :: Char -> String -> [String]
@@ -61,19 +58,12 @@ splitOn c xs =
 ------------------------------------------------------------
 
 invalidPart1 :: Integer -> Bool
-invalidPart1 = maybe False (uncurry (==)) . splitEvenHalves . show
-
--- Uses tortoise/hare pointers: the fast cursor moves twice as
--- quickly as the slow one, so when fast reaches the end the slow
--- cursor sits at the midpoint and we have both halves without ever
--- computing the length.
-splitEvenHalves :: [a] -> Maybe ([a], [a])
-splitEvenHalves xs = go xs xs []
-  where
-    go (s:slow') (_:_:fast') acc = go slow' fast' (s:acc)
-    go [] (_:_:_) _             = Nothing
-    go _ [_] _                  = Nothing
-    go slow [] acc              = Just (reverse acc, slow)
+invalidPart1 n =
+  let digits     = show n
+      len        = length digits
+      halfLength = len `div` 2
+      (prefix, suffix) = splitAt halfLength digits
+  in even len && prefix == suffix
 
 ------------------------------------------------------------
 -- Part 2: "some sequence of digits repeated at least twice"
